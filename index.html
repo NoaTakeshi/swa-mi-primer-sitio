@@ -1,11 +1,633 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pagina web</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Sitio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F5F0E8;
+      --ink: #1A1410;
+      --terracotta: #C4603A;
+      --sage: #7A8C6E;
+      --gold: #D4A843;
+      --warm-gray: #8C8278;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ─── CURSOR ─── */
+    body { cursor: none; }
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--terracotta);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, background 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    #cursor.grow { transform: translate(-50%, -50%) scale(3); background: var(--gold); opacity: 0.6; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 4rem;
+      mix-blend-mode: multiply;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--ink);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--terracotta);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 4rem 4rem 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 5vw, 5.5rem);
+      line-height: 1.1;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    .hero-desc {
+      max-width: 380px;
+      line-height: 1.8;
+      color: var(--warm-gray);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--ink);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 1rem 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: background 0.3s, gap 0.3s;
+      width: fit-content;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+    .hero-cta:hover { background: var(--terracotta); gap: 1.5rem; }
+    .hero-cta span { font-size: 1.1rem; }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-right::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--sage) 0%, #4A5C3E 50%, var(--ink) 100%);
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.3s forwards;
+    }
+
+    /* Decorative shapes in hero */
+    .shape-circle {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(245,240,232,0.2);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+    .shape-circle:nth-child(2) {
+      width: 200px; height: 200px;
+      animation-delay: 0.5s;
+    }
+    .shape-circle:nth-child(3) {
+      width: 450px; height: 450px;
+      animation-delay: 1s;
+    }
+
+    .hero-number {
+      position: absolute;
+      bottom: 4rem; left: 4rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 8rem;
+      color: rgba(245,240,232,0.08);
+      line-height: 1;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    /* Floating text in right panel */
+    .hero-right-text {
+      position: absolute;
+      bottom: 3rem; right: 3rem;
+      text-align: right;
+      color: rgba(245,240,232,0.7);
+      z-index: 2;
+    }
+    .hero-right-text p {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrapper {
+      background: var(--terracotta);
+      padding: 1rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--cream);
+      padding: 0 2rem;
+    }
+    .marquee-track .dot {
+      color: rgba(245,240,232,0.4);
+      font-style: normal;
+    }
+
+    /* ─── ABOUT ─── */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 80vh;
+    }
+    .about-left {
+      background: var(--ink);
+      padding: 6rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-left::before {
+      content: 'Nosotros';
+      font-family: 'Playfair Display', serif;
+      font-size: 10rem;
+      color: rgba(255,255,255,0.03);
+      position: absolute;
+      top: 2rem; left: -1rem;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .section-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+    .about-left h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      color: var(--cream);
+      line-height: 1.2;
+      margin-bottom: 2rem;
+    }
+    .about-left p {
+      color: rgba(245,240,232,0.6);
+      line-height: 1.9;
+      font-size: 0.95rem;
+    }
+
+    .about-right {
+      padding: 6rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3rem;
+    }
+
+    .stat {
+      border-left: 2px solid var(--terracotta);
+      padding-left: 2rem;
+    }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      margin-top: 0.5rem;
+    }
+
+    /* ─── SERVICES ─── */
+    .services {
+      padding: 8rem 4rem;
+      background: var(--cream);
+    }
+    .services-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 5rem;
+    }
+    .services-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      max-width: 400px;
+      line-height: 1.15;
+    }
+    .services-header p {
+      max-width: 300px;
+      color: var(--warm-gray);
+      line-height: 1.8;
+      font-size: 0.9rem;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--ink);
+    }
+    .service-card {
+      background: var(--cream);
+      padding: 3rem 2.5rem;
+      transition: background 0.4s, color 0.4s;
+      cursor: pointer;
+    }
+    .service-card:hover { background: var(--sage); }
+    .service-card:hover .service-title,
+    .service-card:hover .service-desc { color: var(--cream); }
+    .service-card:hover .service-num { color: rgba(245,240,232,0.3); }
+
+    .service-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: rgba(26,20,16,0.08);
+      line-height: 1;
+      margin-bottom: 2rem;
+      transition: color 0.4s;
+    }
+    .service-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      transition: color 0.4s;
+    }
+    .service-desc {
+      font-size: 0.85rem;
+      color: var(--warm-gray);
+      line-height: 1.8;
+      transition: color 0.4s;
+    }
+
+    /* ─── CONTACT ─── */
+    .contact {
+      background: var(--ink);
+      padding: 8rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(196,96,58,0.15) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .contact .section-tag { color: var(--gold); margin-bottom: 1.5rem; }
+    .contact h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 3rem;
+    }
+    .contact h2 em { color: var(--terracotta); font-style: italic; }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      background: rgba(245,240,232,0.05);
+      border: 1px solid rgba(245,240,232,0.1);
+      color: var(--cream);
+      padding: 1rem 1.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s;
+      resize: none;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder { color: rgba(245,240,232,0.3); }
+    .contact-form input:focus,
+    .contact-form textarea:focus { border-color: var(--terracotta); }
+    .contact-form textarea { height: 120px; }
+    .contact-form button {
+      background: var(--terracotta);
+      color: var(--cream);
+      border: none;
+      padding: 1rem 2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.3s;
+    }
+    .contact-form button:hover { background: var(--gold); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,240,232,0.08);
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer p {
+      font-size: 0.75rem;
+      color: rgba(245,240,232,0.3);
+      letter-spacing: 0.1em;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      color: rgba(245,240,232,0.4);
+      font-size: 1.1rem;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      50%       { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 1.5rem 2rem; }
+      .nav-links { display: none; }
+      .hero, .about { grid-template-columns: 1fr; }
+      .hero-left { padding: 7rem 2rem 4rem; }
+      .hero-right { min-height: 300px; }
+      .services-header { flex-direction: column; gap: 1rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .services, .about-left, .about-right, .contact { padding: 5rem 2rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
+
+  <div id="cursor"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Studio·X</div>
+    <ul class="nav-links">
+      <li><a href="#about">Nosotros</a></li>
+      <li><a href="#services">Servicios</a></li>
+      <li><a href="#contact">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-tag">Diseño & Creatividad — 2026</p>
+      <h1>Creamos<br/>cosas <em>bellas</em><br/>que duran.</h1>
+      <p class="hero-desc">
+        Somos un estudio creativo que transforma ideas en experiencias visuales memorables. Cada proyecto es una obra única.
+      </p>
+      <a href="#contact" class="hero-cta">Empecemos <span>→</span></a>
+    </div>
+    <div class="hero-right">
+      <div class="shape-circle"></div>
+      <div class="shape-circle"></div>
+      <div class="shape-circle"></div>
+      <div class="hero-number">01</div>
+      <div class="hero-right-text">
+        <p>Diseño</p>
+        <p>Estrategia</p>
+        <p>Identidad</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrapper">
+    <div class="marquee-track">
+      <span>Diseño Web</span><span class="dot">✦</span>
+      <span>Identidad Visual</span><span class="dot">✦</span>
+      <span>Estrategia Creativa</span><span class="dot">✦</span>
+      <span>Fotografía</span><span class="dot">✦</span>
+      <span>Branding</span><span class="dot">✦</span>
+      <span>UX/UI</span><span class="dot">✦</span>
+      <span>Diseño Web</span><span class="dot">✦</span>
+      <span>Identidad Visual</span><span class="dot">✦</span>
+      <span>Estrategia Creativa</span><span class="dot">✦</span>
+      <span>Fotografía</span><span class="dot">✦</span>
+      <span>Branding</span><span class="dot">✦</span>
+      <span>UX/UI</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about" class="about">
+    <div class="about-left">
+      <p class="section-tag">Quiénes somos</p>
+      <h2>Un estudio con alma y propósito</h2>
+      <p>
+        Nacimos de la convicción de que el buen diseño tiene el poder de transformar negocios y conectar personas. Combinamos intuición creativa con pensamiento estratégico para crear soluciones que trascienden lo ordinario.
+      </p>
+    </div>
+    <div class="about-right reveal">
+      <div class="stat">
+        <div class="stat-number">8+</div>
+        <div class="stat-label">Años de experiencia</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">240</div>
+        <div class="stat-label">Proyectos completados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">98%</div>
+        <div class="stat-label">Clientes satisfechos</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="services">
+    <div class="services-header reveal">
+      <h2>Lo que hacemos <em>mejor</em></h2>
+      <p>Cada servicio está diseñado para llevar tu marca al siguiente nivel con intención y precisión.</p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-num">01</div>
+        <div class="service-title">Diseño Web</div>
+        <div class="service-desc">Sitios que no solo se ven bien, sino que convierten visitantes en clientes fieles.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-num">02</div>
+        <div class="service-title">Identidad Visual</div>
+        <div class="service-desc">Logotipos, paletas y sistemas de marca que comunican quién eres sin decir una palabra.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-num">03</div>
+        <div class="service-title">Estrategia</div>
+        <div class="service-desc">Análisis profundo del mercado y la competencia para posicionar tu marca con claridad.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <p class="section-tag">Hablemos</p>
+    <h2>¿Tienes un<br/><em>proyecto</em> en mente?</h2>
+    <form class="contact-form" onsubmit="return false;">
+      <input type="text" placeholder="Tu nombre" />
+      <input type="email" placeholder="Tu correo electrónico" />
+      <textarea placeholder="Cuéntanos sobre tu proyecto…"></textarea>
+      <button type="submit">Enviar mensaje</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Studio·X — Todos los derechos reservados</p>
+    <div class="footer-logo">Studio·X</div>
+    <p>Bogotá, Colombia</p>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .service-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('grow'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('grow'));
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
